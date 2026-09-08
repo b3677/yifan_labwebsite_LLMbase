@@ -27,10 +27,11 @@ export const course = {
   term: "Fall 2026",
   time: "Tuesday and Friday 13:30-15:55",
   location: "E13-210, Yungu campus",
+  officeHours: "1 hour/week, 10am -11am per Friday, E14-417",
   website: "", // fill in when available, e.g. "https://..."
   lecturers: [
     { name: "Yifan Yang", email: "yangyifan@westlake.edu.cn" },
-    { name: "Poyi Ho", email: "poyiho@westlake.edu.cn" },
+    { name: "Po-Yi Ho", email: "poyiho@westlake.edu.cn" },
   ],
   tas: [
     { name: "Yihao Lin", email: "linyihao@westlake.edu.cn", note: "2026 Fall" },
@@ -50,14 +51,8 @@ export const course = {
       file: "/course_file/Doctoral_Course_Syllabus_Qbio (B).pdf",
     },
   ],
-  materials: [
-    {
-      label: "test file",
-      file: "/course_file/course_material/Sizes and Concentrations gallery.pptx",
-    },
-  ],
   lectures: [
-    { title: "What are quantitative principles in biology?" },
+    { title: "Lecture_1_Chemotaxis", file: "/course_file/Lecture_1_Chemotaxis.pdf" },
     { title: "Numbers and scales, and how to build simple models" },
     { title: "Chemical kinetics, the lac operon, and transcription networks" },
     { title: "Nonlinear regulation and solving equations graphically" },
@@ -75,12 +70,22 @@ export const course = {
     { title: "Whole-cell modelling, FBA, and coarse-grained descriptions" },
   ] as Lecture[],
   problemSets: [
-    { title: "Problem Set 1" },
+    { title: "Problem Set 1", file: "/course_file/Problem_Set_1.pdf" },
     { title: "Problem Set 2" },
     { title: "Problem Set 3" },
     { title: "Problem Set 4" },
     { title: "Problem Set 5" },
     { title: "Problem Set 6" },
+  ] as Lecture[],
+  lectureNotes: [
+    {
+      title: "Intro_to_Quant_Bio_LectureNote_0902",
+      file: "/course_file/Intro_to_Quant_Bio_LectureNote_0902.pdf",
+    },
+    {
+      title: "Intro_to_Quant_Bio_LectureNote_0908",
+      file: "/course_file/Intro_to_Quant_Bio_LectureNote_0908.pdf",
+    },
   ] as Lecture[],
 };
 

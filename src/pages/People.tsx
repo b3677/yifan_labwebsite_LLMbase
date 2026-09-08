@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Mail } from "lucide-react";
+import { Mail, Copy, Check } from "lucide-react";
 import { people, sortPeople, roleOrder } from "@/data/people";
 import FadeInSection from "@/components/FadeInSection";
-import SurvivalCurve from "@/components/SurvivalCurve";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { obfuscateEmail } from "@/lib/utils";
 
 interface PersonCardProps {
   name: string;
@@ -17,6 +23,7 @@ interface PersonCardProps {
   roleLabel: string;
   image: string;
   bio: string;
+  email?: string;
   onOpen: () => void;
 }
 
@@ -26,9 +33,22 @@ const PersonCard: React.FC<PersonCardProps> = ({
   roleLabel,
   image,
   bio,
+  email,
   onOpen,
 }) => {
   const [failed, setFailed] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = async () => {
+    if (!email) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (non-secure context) — mailto link is the fallback
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -48,11 +68,8 @@ const PersonCard: React.FC<PersonCardProps> = ({
     >
       {/* Square photo with hover overlay */}
       <div
-        className="relative aspect-square w-full overflow-hidden rounded-xl"
-        style={{
-          backgroundColor: "var(--color-accent)",
-          border: "1px solid var(--border)",
-        }}
+        className="relative aspect-square w-full overflow-hidden"
+        style={{ backgroundColor: "var(--color-accent)" }}
       >
         {!failed && (
           <img
@@ -60,7 +77,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
             alt={name}
             loading="lazy"
             onError={() => setFailed(true)}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         )}
         {failed && (
@@ -91,7 +108,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
       {/* Name + role below the photo */}
       <div className="mt-3">
         <span
-          className="block text-sm font-semibold leading-snug"
+          className="block text-base font-medium leading-snug"
           style={{ color: "var(--text-primary)" }}
         >
           {name}
@@ -104,12 +121,76 @@ const PersonCard: React.FC<PersonCardProps> = ({
             </span>
           )}
         </span>
-        <span
-          className="block text-xs"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          {roleLabel}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span
+            className="text-xs"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {roleLabel}
+          </span>
+
+          {email && (
+            <Popover>
+              <PopoverTrigger
+                asChild
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Email ${name}`}
+                  className="inline-flex size-6 items-center justify-center rounded-md transition-colors hover:bg-accent"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  <Mail size={14} />
+                </span>
+              </PopoverTrigger>
+
+              <PopoverContent
+                align="start"
+                sideOffset={4}
+                className="w-auto min-w-56 p-3"
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="min-w-0 flex-1 break-all text-sm font-medium"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {obfuscateEmail(email)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopyEmail}
+                      aria-label={`Copy ${obfuscateEmail(email)} to clipboard`}
+                      className="shrink-0"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="size-3.5" /> Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="size-3.5" /> Copy
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <a
+                    href={`mailto:${email}`}
+                    className="inline-flex items-center gap-1.5 text-sm no-underline transition-colors hover:opacity-80"
+                    style={{ color: "var(--color-secondary)" }}
+                  >
+                    <Mail size={14} /> Open in email app
+                  </a>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -146,13 +227,7 @@ const People: React.FC = () => {
   return (
     <div className="min-h-screen pt-16">
       {/* Hero */}
-      <section className="relative py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-24 opacity-60">
-            <SurvivalCurve variant="divider" className="w-full h-full" />
-          </div>
-        </div>
-
+      <section className="relative py-20 lg:py-28">
         <div className="relative max-w-7xl mx-auto px-6 lg:px-12">
           <FadeInSection>
             <div className="max-w-3xl">
@@ -164,10 +239,7 @@ const People: React.FC = () => {
               </p>
               <h1
                 className="text-3xl sm:text-4xl lg:text-5xl mb-6"
-                style={{
-                  color: "var(--color-primary)",
-                  letterSpacing: "-0.015em",
-                }}
+                style={{ letterSpacing: "-0.015em" }}
               >
                 People
               </h1>
@@ -191,7 +263,6 @@ const People: React.FC = () => {
                 <h2
                   className="text-xl mb-8 pb-2"
                   style={{
-                    color: "var(--color-primary)",
                     borderBottom: "1px solid var(--border)",
                   }}
                 >
@@ -208,6 +279,7 @@ const People: React.FC = () => {
                       roleLabel={person.roleLabel}
                       image={person.image}
                       bio={person.bio}
+                      email={person.email}
                       onOpen={() => setSelected(person)}
                     />
                   </FadeInSection>
@@ -278,7 +350,7 @@ const People: React.FC = () => {
                   style={{ color: "var(--color-secondary)" }}
                 >
                   <Mail size={14} />
-                  {selected.email}
+                  {obfuscateEmail(selected.email)}
                 </a>
               )}
             </>
